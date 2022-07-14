@@ -1,7 +1,7 @@
 import pandas as pd
-
+dataset = %env WORKSPACE_CDR
 ## List of participants with any EHR data
-def get_ehr_df(dataset, project):
+def ehr_cohort(dataset):
     query = f"""
     SELECT
        DISTINCT person_id
@@ -46,6 +46,54 @@ def get_ehr_df(dataset, project):
     WHERE LOWER(mm.src_id) LIKE 'ehr site%'
     """
 
-    ehr_df = pd.read_gbq(query, dialect = 'standard',  project_id=project)
+    ehr_df = pd.read_gbq(query, dialect = 'standard')
     
     return ehr_df
+
+
+def physical_measurement_cohort(dataset, project):
+    query = f"""
+    SELECT
+       DISTINCT person_id
+    FROM `{dataset}.measurement` AS m
+    INNER JOIN `{dataset}.measurement_ext` AS mm ON m.measurement_id = mm.measurement_id
+    LEFT JOIN `{dataset}.concept` AS c ON m.measurement_concept_id = c.concept_id
+    WHERE mm.src_id = 'PPI/PM'
+    AND m.visit_occurrence_id IS NOT NULL
+    """
+    pm_df = pd.read_gbq(query, dialect = 'standard')
+    
+    return pm_df
+
+
+def fitbit_cohort(dataset, project):
+    query = f"""
+          SELECT 
+              DISTINCT person_id 
+          FROM `{dataset}.heart_rate_minute_level`
+          UNION DISTINCT
+          SELECT 
+              DISTINCT person_id 
+          FROM `{dataset}.heart_rate_summary`
+          UNION DISTINCT
+          SELECT 
+              DISTINCT person_id 
+          FROM `{dataset}.steps_intraday`
+          UNION DISTINCT
+          SELECT 
+              DISTINCT person_id 
+          FROM `{dataset}.activity_summary`
+        """
+    fitbit_df = pd.read_gbq(query, dialect = 'standard')
+    return fitbit_df
+
+def cope_cohort(dataset):
+    query = f"""
+          SELECT DISTINCT person_id
+        FROM `{dataset}.observation`
+        INNER JOIN `{dataset}.observation_ext` USING(observation_id)
+        INNER JOIN `{dataset}.concept` v ON v.concept_id=survey_version_concept_id
+        WHERE lower(v.concept_name) LIKE '%cope survey%'
+        """
+    cope_df = pd.read_gbq(query, dialect = 'standard',  project_id=project)
+    return cope_df
