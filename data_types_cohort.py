@@ -1,9 +1,10 @@
 import pandas as pd
 import os
 
-dataset = os.getenv('WORKSPACE_CDR') 
+
 ## List of participants with any EHR data
-def ehr_cohort(dataset = dataset):
+def ehr_cohort():
+    dataset = os.getenv('WORKSPACE_CDR') 
     query = f"""
     SELECT
        DISTINCT person_id
@@ -53,7 +54,8 @@ def ehr_cohort(dataset = dataset):
     return ehr_df
 
 
-def physical_measurement_cohort(dataset = dataset):
+def physical_measurement_cohort():
+    dataset = os.getenv('WORKSPACE_CDR') 
     query = f"""
     SELECT
        DISTINCT person_id
@@ -68,7 +70,8 @@ def physical_measurement_cohort(dataset = dataset):
     return pm_df
 
 
-def fitbit_cohort(dataset = dataset):
+def fitbit_cohort():
+    dataset = os.getenv('WORKSPACE_CDR') 
     query = f"""
           SELECT 
               DISTINCT person_id 
@@ -89,7 +92,8 @@ def fitbit_cohort(dataset = dataset):
     fitbit_df = pd.read_gbq(query, dialect = 'standard')
     return fitbit_df
 
-def cope_cohort(dataset = dataset):
+def cope_cohort():
+    dataset = os.getenv('WORKSPACE_CDR') 
     query = f"""
           SELECT DISTINCT person_id
         FROM `{dataset}.observation`
