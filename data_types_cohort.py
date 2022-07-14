@@ -1,5 +1,7 @@
 import pandas as pd
-dataset = %env WORKSPACE_CDR
+import os
+
+dataset = os.getenv('WORKSPACE_CDR') 
 ## List of participants with any EHR data
 def ehr_cohort(dataset):
     query = f"""
