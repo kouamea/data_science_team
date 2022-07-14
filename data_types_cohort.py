@@ -3,7 +3,7 @@ import os
 
 dataset = os.getenv('WORKSPACE_CDR') 
 ## List of participants with any EHR data
-def ehr_cohort(dataset):
+def ehr_cohort(dataset = dataset):
     query = f"""
     SELECT
        DISTINCT person_id
@@ -53,7 +53,7 @@ def ehr_cohort(dataset):
     return ehr_df
 
 
-def physical_measurement_cohort(dataset, project):
+def physical_measurement_cohort(dataset = dataset):
     query = f"""
     SELECT
        DISTINCT person_id
@@ -68,7 +68,7 @@ def physical_measurement_cohort(dataset, project):
     return pm_df
 
 
-def fitbit_cohort(dataset, project):
+def fitbit_cohort(dataset = dataset):
     query = f"""
           SELECT 
               DISTINCT person_id 
@@ -89,7 +89,7 @@ def fitbit_cohort(dataset, project):
     fitbit_df = pd.read_gbq(query, dialect = 'standard')
     return fitbit_df
 
-def cope_cohort(dataset):
+def cope_cohort(dataset = dataset):
     query = f"""
           SELECT DISTINCT person_id
         FROM `{dataset}.observation`
