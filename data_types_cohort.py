@@ -53,7 +53,7 @@ def ehr_cohort():
     
     return ehr_df
 
-
+# List of participants with any physical measurements
 def physical_measurement_cohort():
     dataset = os.getenv('WORKSPACE_CDR') 
     query = f"""
@@ -69,7 +69,7 @@ def physical_measurement_cohort():
     
     return pm_df
 
-
+# list of participants with any fitbit data
 def fitbit_cohort():
     dataset = os.getenv('WORKSPACE_CDR') 
     query = f"""
@@ -88,18 +88,24 @@ def fitbit_cohort():
           SELECT 
               DISTINCT person_id 
           FROM `{dataset}.activity_summary`
+          
+          UNION DISTINCT
+            SELECT DISTINCT person_id
+           FROM `{dataset}.sleep_daily_summary`
+
+          UNION DISTINCT
+            SELECT DISTINCT person_id
+          FROM `{dataset}.sleep_level`
         """
     fitbit_df = pd.read_gbq(query, dialect = 'standard')
     return fitbit_df
 
-def cope_cohort():
+# list of participants with any survey data
+def survey_cohort():
     dataset = os.getenv('WORKSPACE_CDR') 
     query = f"""
           SELECT DISTINCT person_id
-        FROM `{dataset}.observation`
-        INNER JOIN `{dataset}.observation_ext` USING(observation_id)
-        INNER JOIN `{dataset}.concept` v ON v.concept_id=survey_version_concept_id
-        WHERE lower(v.concept_name) LIKE '%cope survey%'
+            FROM `{dataset}.ds_survey`
         """
-    cope_df = pd.read_gbq(query, dialect = 'standard',  project_id=project)
-    return cope_df
+    survey_df = pd.read_gbq(query, dialect = 'standard',  project_id=project)
+    return survey_df
